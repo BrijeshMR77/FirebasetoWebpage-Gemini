@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Data Visualization</title>
+  <script src="https://www.gstatic.com/firebasejs/8.3.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.3.3/firebase-database.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <canvas id="dataChart"></canvas>
+</body>
+<script>
+  // Firebase configuration **Replace placeholders with your actual credentials**
+  var firebaseConfig = {
+      apiKey: "AIzaSyAK30qKMDZ5b4OL-ewZDK3csNg4vdZ8nec",
+      authDomain: "esp32-electronics-simplified.firebaseapp.com",
+      databaseURL: "https://esp32-electronics-simplified-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "esp32-electronics-simplified",
+      storageBucket: "esp32-electronics-simplified.appspot.com",
+      messagingSenderId: "622348255925",
+      appId: "1:622348255925:web:cd9d59c33ea388720ff4fc"
+    };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+
+  var database = firebase.database();
+
+  // Reference to the data path in your database (replace 'test' if needed)
+  var dataRef = database.ref('test');
+
+  var labels = [];
+  var intData = [];
+  var floatData = [];
+
+  var dataChart = new Chart(document.getElementById('dataChart'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Integer Data',
+        borderColor: 'blue',
+        data: intData,
+        fill: false
+      }, {
+        label: 'Float Data',
+        borderColor: 'red',
+        data: floatData,
+        fill: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        xAxes: [{
+          type: 'time',
+          time: {
+            // Adjust unit if timestamps aren't in seconds (e.g., unit: 'minute')
+            unit: 'second'
+          }
+        }],
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
+          }
+        }]
+      }
+    }
+  });
+
+  dataRef.on('child_added', function(snapshot) {
+    var data = snapshot.val();
+    
+    // Update data arrays based on your actual data structure
+    labels.push(new Date());  // Assuming timestamps are available
+    intData.push(data.int);    // Replace 'int' with the actual property name
+    floatData.push(data.float); // Replace 'float' with the actual property name
+
+    // Optional delay for potential timing issue
+    setTimeout(function() {
+      dataChart.update();
+    }, 100);
+  });
+</script>
+</html>
